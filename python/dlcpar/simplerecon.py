@@ -21,7 +21,7 @@ from compbio import phylo, phyloDLC
 def dlc_recon(tree, stree, gene2species,
               dupcost=1, losscost=1, coalcost=1, implied=True,
               nsearch=1000, nprescreen=20,
-              search=None,
+              noimprov = None, search=None,
               init_locus_tree=None,
               log=sys.stdout):
     """Perform reconciliation using DLCoal model with parsimony costs"""
@@ -36,7 +36,7 @@ def dlc_recon(tree, stree, gene2species,
                        log=log)
     reconer.set_proposer(DLCReconProposer(
         tree, stree, gene2species, search=search))
-    return reconer.recon(nsearch).get_dict()
+    return reconer.recon(nsearch, noimprov).get_dict()
 
 
 class DLCRecon (object):
@@ -75,18 +75,25 @@ class DLCRecon (object):
         self.log_stream = log
 
 
-    def recon(self, nsearch=1000):
+    def recon(self, nsearch=1000, noimprov=None):
         """Perform reconciliation"""
 
         self.init_search()
         proposal = self.proposer.init_proposal()
         self.maxrecon = proposal.copy()
+        best_cost = util.INF
+        i_best_cost = -1
         for i in xrange(nsearch):
 ##            if i % 10 == 0:
 ##                print "search", i
 
 ##            util.tic("eval")
             cost = self.eval_proposal(proposal)
+            if cost < best_cost:
+                best_cost = cost
+                i_best_cost = i
+            if noimprov != None and (i - i_best_cost) >= noimprov:
+                break
 ##            util.print_dict(proposal.data)
 ##            print '\t'.join(map(lambda key: str(proposal.data[key]),
 ##                                ("cost", "ndup", "nloss", "ncoal")))

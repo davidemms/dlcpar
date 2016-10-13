@@ -84,6 +84,10 @@ def parse_args():
                           metavar="<# iterations>",
                           type="int", default=10,
                           help="number of search iterations (default: 10)")
+    grp_search.add_option("-n", "--noimprov", dest="noimprov",
+                          metavar="<# no improvement>",
+                          type="int", default=None,
+                          help="maximum number of iterations with no improvement (default: off)")
     grp_search.add_option("", "--nprescreen", dest="nprescreen",
                           metavar="<# prescreens>",
                           type="int", default=20,
@@ -174,7 +178,7 @@ def main():
             maxrecon = dlcpar.simplerecon.dlc_recon(
                 coal_tree, stree, gene2species,
                 dupcost=options.dupcost, losscost=options.losscost, coalcost=options.coalcost, implied=not options.explicit,
-                nsearch=options.iter, nprescreen=options.nprescreen,
+                nsearch=options.iter, nprescreen=options.nprescreen, noimprov = options.noimprov,
                 init_locus_tree=init_locus_tree,
                 log=log_out)
             locus_trees.append(maxrecon["locus_tree"])
